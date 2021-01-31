@@ -35,6 +35,10 @@ pkgver() {
   python -c "with open('jax/version.py') as fin: exec(fin.read(), globals()); print(__version__+ '.`git rev-list -n1 --abbrev-commit HEAD`')"
 }
 
+get_pyver() {
+  python -c 'import sys; print(str(sys.version_info[0]) + "." + str(sys.version_info[1]))'
+}
+
 build() {
   cd $pkgname
   TF_CUDA_PATHS=/usr,/opt/cuda python build/build.py --enable_cuda --enable_march_native
@@ -44,7 +48,7 @@ package() {
   cd $pkgname
 #  (cd build && python setup.py install --optimize=1 --root=$pkgdir)
   python setup.py install --optimize=1 --root=$pkgdir
-  INSTALL_PATH="$pkgdir/usr/lib/python3.9/site-packages/"
+  INSTALL_PATH="$pkgdir/usr/lib/python$(get_pyver)/site-packages/"
   mkdir -p $INSTALL_PATH
-  unzip dist/jaxlib-0.1.60-cp39-none-manylinux2010_x86_64.whl -d $INSTALL_PATH
+  unzip dist/*.whl -d $INSTALL_PATH #jaxlib-0.1.60-cp39-none-manylinux2010_x86_64.whl
 }
